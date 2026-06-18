@@ -9,6 +9,6 @@ Unlike Supervised Learning, these models find hidden patterns or intrinsic struc
    - Hierarchical Clustering
    - DBSCAN
 
-2. **Dimensionality Reduction** (Coming Soon)
+2. **Dimensionality Reduction**
    - Principal Component Analysis (PCA)
    - t-SNE
