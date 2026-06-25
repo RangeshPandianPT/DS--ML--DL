@@ -2,6 +2,8 @@ import streamlit as st
 import pickle
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Page config
 st.set_page_config(
@@ -89,18 +91,21 @@ def load_models():
         height_model = pickle.load(open('height_intelligence.pkl', 'rb'))
         gender_model = pickle.load(open('gender_classification_intelligence.pkl', 'rb'))
         suv_model = pickle.load(open('suv_prediction_model.pkl', 'rb'))
-        return height_model, gender_model, suv_model
+        iris_model = pickle.load(open('iris_classification_model.pkl', 'rb'))
+        wine_model = pickle.load(open('wine_quality_model.pkl', 'rb'))
+        stock_model = pickle.load(open('stock_prediction_model.pkl', 'rb'))
+        return height_model, gender_model, suv_model, iris_model, wine_model, stock_model
     except Exception as e:
         st.error(f"Error loading models. Please make sure the .pkl files exist in the directory. Error: {e}")
-        return None, None, None
+        return None, None, None, None, None, None
 
-height_model, gender_model, suv_model = load_models()
+height_model, gender_model, suv_model, iris_model, wine_model, stock_model = load_models()
 
 # Sidebar Navigation
 with st.sidebar:
     st.markdown("<h2 class='highlight'>Menu</h2>", unsafe_allow_html=True)
-    st.markdown("Select a predictive model to use:")
-    app_mode = st.radio("Choose Model", ["Weight Prediction", "Gender Classification", "SUV Purchase Prediction"])
+    st.markdown("Select an application mode:")
+    app_mode = st.radio("Choose Mode", ["Weight Prediction", "Gender Classification", "SUV Purchase Prediction", "Iris Species Classification", "Wine Quality Prediction", "Stock Price Prediction", "Data Explorer"])
     st.markdown("---")
     st.markdown("### About")
     st.markdown("This portal serves serialized Machine Learning models from the repository for interactive testing.")
@@ -109,7 +114,7 @@ with st.sidebar:
 col1, col2, col3 = st.columns([1, 2, 1])
 
 with col2:
-    if height_model and gender_model and suv_model:
+    if all(m is not None for m in [height_model, gender_model, suv_model, iris_model, wine_model, stock_model]):
         if app_mode == "Weight Prediction":
             st.markdown("""
             <div class='glass-card'>
@@ -191,5 +196,123 @@ with col2:
                     <small style='color: #888;'>Confidence: {confidence:.2f}%</small>
                 </div>
                 """, unsafe_allow_html=True)
+                
+        elif app_mode == "Iris Species Classification":
+            st.markdown("""
+            <div class='glass-card'>
+                <h3 style='margin-bottom: 20px;'>🌸 Iris Species Classification</h3>
+                <p style='color: #bbb;'>Predict the species of an Iris flower based on its measurements.</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            c1, c2 = st.columns(2)
+            with c1:
+                sl = st.number_input("Sepal Length (cm)", min_value=0.0, max_value=10.0, value=5.1, step=0.1)
+                pl = st.number_input("Petal Length (cm)", min_value=0.0, max_value=10.0, value=1.4, step=0.1)
+            with c2:
+                sw = st.number_input("Sepal Width (cm)", min_value=0.0, max_value=10.0, value=3.5, step=0.1)
+                pw = st.number_input("Petal Width (cm)", min_value=0.0, max_value=10.0, value=0.2, step=0.1)
+                
+            if st.button("Predict Species"):
+                prediction = iris_model.predict([[sl, sw, pl, pw]])
+                species = prediction[0]
+                
+                st.markdown(f"""
+                <div class='output-box' style='border-left-color: #FFD166; background: rgba(255, 255, 255, 0.05);'>
+                    <strong>Predicted Species:</strong> <span style='font-size: 1.5em; color: #FFD166;'>{species}</span>
+                </div>
+                """, unsafe_allow_html=True)
+
+        elif app_mode == "Wine Quality Prediction":
+            st.markdown("""
+            <div class='glass-card'>
+                <h3 style='margin-bottom: 20px;'>🍷 Wine Quality Prediction</h3>
+                <p style='color: #bbb;'>Predict the quality of a wine (score between 0 and 10) based on chemical properties.</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                fa = st.number_input("Fixed Acidity", value=7.4)
+                rs = st.number_input("Residual Sugar", value=1.9)
+                tsd = st.number_input("Total Sulfur Dioxide", value=34.0)
+                sul = st.number_input("Sulphates", value=0.56)
+            with c2:
+                va = st.number_input("Volatile Acidity", value=0.7)
+                ch = st.number_input("Chlorides", value=0.076)
+                den = st.number_input("Density", value=0.9978)
+                alc = st.number_input("Alcohol", value=9.4)
+            with c3:
+                ca = st.number_input("Citric Acid", value=0.0)
+                fsd = st.number_input("Free Sulfur Dioxide", value=11.0)
+                ph = st.number_input("pH", value=3.51)
+                
+            if st.button("Predict Quality"):
+                features = [[fa, va, ca, rs, ch, fsd, tsd, den, ph, sul, alc]]
+                prediction = wine_model.predict(features)
+                quality = prediction[0]
+                
+                st.markdown(f"""
+                <div class='output-box' style='border-left-color: #EF476F; background: rgba(255, 255, 255, 0.05);'>
+                    <strong>Predicted Quality Score:</strong> <span style='font-size: 1.5em; color: #EF476F;'>{quality:.2f} / 10</span>
+                </div>
+                """, unsafe_allow_html=True)
+
+        elif app_mode == "Stock Price Prediction":
+            st.markdown("""
+            <div class='glass-card'>
+                <h3 style='margin-bottom: 20px;'>📈 Stock Price Prediction</h3>
+                <p style='color: #bbb;'>Predict the closing price of a stock based on its daily metrics.</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            c1, c2 = st.columns(2)
+            with c1:
+                o_price = st.number_input("Open Price ($)", value=39.69)
+                l_price = st.number_input("Low Price ($)", value=38.79)
+            with c2:
+                h_price = st.number_input("High Price ($)", value=41.22)
+                vol = st.number_input("Volume", value=24232729)
+                
+            if st.button("Predict Close Price"):
+                prediction = stock_model.predict([[o_price, h_price, l_price, vol]])
+                close_price = prediction[0]
+                
+                st.markdown(f"""
+                <div class='output-box' style='border-left-color: #118AB2; background: rgba(255, 255, 255, 0.05);'>
+                    <strong>Predicted Close Price:</strong> <span style='font-size: 1.5em; color: #118AB2;'>${close_price:.2f}</span>
+                </div>
+                """, unsafe_allow_html=True)
+                
+        elif app_mode == "Data Explorer":
+            st.markdown("""
+            <div class='glass-card'>
+                <h3 style='margin-bottom: 20px;'>📊 Interactive Data Explorer</h3>
+                <p style='color: #bbb;'>Explore the datasets used to train these models.</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            dataset_choice = st.selectbox("Choose a dataset", ["Iris", "Wine Quality", "Stock Data"])
+            
+            if dataset_choice == "Iris":
+                df = pd.read_csv("Iris.csv")
+                st.dataframe(df.head(10))
+                st.markdown("**Scatter Plot (Sepal Length vs Sepal Width)**")
+                st.scatter_chart(data=df, x='SepalLengthCm', y='SepalWidthCm', color='Species')
+            elif dataset_choice == "Wine Quality":
+                df = pd.read_csv("WineQT.csv")
+                st.dataframe(df.head(10))
+                st.markdown("**Histogram of Quality**")
+                st.bar_chart(df['quality'].value_counts())
+            elif dataset_choice == "Stock Data":
+                df = pd.read_csv("stock_data.csv")
+                # Drop rows with NaN in Date or Close
+                df = df.dropna(subset=['Date', 'Close'])
+                df['Date'] = pd.to_datetime(df['Date'])
+                df = df.set_index('Date')
+                st.dataframe(df.head(10))
+                st.markdown("**Closing Price Over Time**")
+                st.line_chart(df['Close'])
+
     else:
-        st.warning("Models are not loaded correctly.")
+        st.warning("Models are not loaded correctly. Please run the training scripts to generate all .pkl files.")

@@ -9,7 +9,10 @@ We have exported machine learning models ready for deployment:
 * `height_intelligence.pkl` - A Linear Regression model that predicts a person's weight (in kg) based on their height (in cm).
 * `gender_classification_intelligence.pkl` - A Logistic Regression model that classifies gender based on height and weight.
 * `suv_prediction_model.pkl` - A Logistic Regression model (trained via `train_suv.py`) that predicts SUV purchase behavior based on age and salary.
-> **Note:** A Streamlit UI (`Machine_Learning_App.py`) is provided to interact with these models!
+* `iris_classification_model.pkl` - A Random Forest Classifier (trained via `train_iris.py`) that classifies Iris species based on sepal/petal dimensions.
+* `wine_quality_model.pkl` - A Random Forest Regressor (trained via `train_wine.py`) that predicts wine quality based on chemical features.
+* `stock_prediction_model.pkl` - A Linear Regression model (trained via `train_stock.py`) that predicts stock closing prices based on daily metrics.
+> **Note:** A Streamlit UI (`Machine_Learning_App.py`) is provided to interact with all these models and explore the datasets!
 
 ### 2. Jupyter Notebooks 📓
 The repository includes several notebooks covering different ML concepts:
